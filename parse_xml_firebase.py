@@ -1,6 +1,3 @@
-import firebase_admin
-from firebase_admin import credentials
-from firebase_admin import firestore
 from bs4 import BeautifulSoup
 from bs4.element import Comment
 import numpy as np
@@ -8,7 +5,7 @@ import requests
 from dateutil import parser
 import pandas as pd
 from html.parser import HTMLParser
-
+from firebase_creds import get_firefox_database
 
 url = "https://pontardaweartscentre.ticketsolve.com/shows.xml"
 
@@ -18,15 +15,7 @@ soup = BeautifulSoup(xml_data, features="xml")
 
 shows = soup.find_all("show")
 
-# Use a service account.
-cred = credentials.Certificate('./ponty-arts-centre-firebase-adminsdk-a17x6-6eea0a92c2.json')
-
-app = firebase_admin.initialize_app(cred)
-
-db = firestore.client()
-
-
-events_ref = db.collection("events")
+events_ref = get_firefox_database()
 
 for show in shows:
 
