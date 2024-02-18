@@ -26,7 +26,7 @@ for show in shows:
     meta_data = {}
 
     # Description
-    meta_data['description'] = show.find("description").text
+    meta_data['description'] = BeautifulSoup(show.find("description").text, 'html.parser').get_text(separator=' ', strip=True)
 
     # Category
     meta_data['category'] = show.find("event_category").text
