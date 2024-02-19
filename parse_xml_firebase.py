@@ -62,11 +62,17 @@ for show in shows:
         meta_data[property.find("name").text] = property.value.text
 
 
-    # Sub events
+    # Sub events ------------------------------------------------------------------------------------
     sub_events_tags = show.events.find_all("event")
 
     sub_events_ref = show_ref.collection("sub_events")
 
+    # Earliest and latest times
+    meta_data["time_earliest"] = parser.parse(sub_events_tags[0].find("date_time_iso").text.strip())
+
+    meta_data["time_latest"] = parser.parse(sub_events_tags[-1].find("date_time_iso").text.strip()) 
+
+    # Iterate through all the sub events of this event
     for event in sub_events_tags:
 
         sub_event_ref = sub_events_ref.document(event.find("name").text)
@@ -78,5 +84,7 @@ for show in shows:
             'url': event.find("url").text,
 
         })
+
+    # ------------------------------------------------------------------------------------   
 
     show_ref.set(meta_data)
