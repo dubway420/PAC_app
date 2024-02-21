@@ -8,10 +8,10 @@ events_ref = get_firefox_database()
 cutoff_date = datetime(2024, 7, 20) 
 
 # Define the end date
-end_date = datetime(2025, 11, 30) 
+end_date = datetime(2024, 12, 15) 
 
 # events = events_ref.where(filter=FieldFilter("capital", "==", True)).stream()
-events = events_ref.where(filter=FieldFilter('time_earliest', '>=', cutoff_date)).stream()
+events = events_ref.where(filter=FieldFilter('time_earliest', '>=', cutoff_date)).where(filter=FieldFilter('time_earliest', '<=', end_date)).stream()
 
 
 
