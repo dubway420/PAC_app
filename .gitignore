@@ -1,1 +1,5 @@
 *firebase-adminsdk-*.json
+*__pycache__*
+*firebase_creds.js
+*config.js
+*yarn.lock*
