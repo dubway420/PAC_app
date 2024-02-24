@@ -9,14 +9,20 @@ import { app } from "./firebase_creds"
 // Colour backtround
 // Date range
 // Thumbnail
-
-// TODO
-
 // Press on event to see more info
 // Pressing once expands
-// Lists each sub-event
-// Clicking on sub-event takes you to ticketsolve
 // Should be option to get more info in the form of a dialogue box
+
+
+// TODO
+// Make title text bigger
+// Remove desc from main item
+// Tags etc in main item 
+// On press:
+// 1. Small Desc 
+// 2. Lists each sub-event
+
+// Clicking on sub-event takes you to ticketsolve
 
 // Sliding draw with buttons to toggle -
 // 1. Cinema
@@ -40,10 +46,12 @@ import { app } from "./firebase_creds"
 // Title bar
 
 // Make it refresh if dragged down
+// Welsh/English Toggle
 
 
 const App = () => {
   const [data, setData] = useState(null);
+  const [expandedItem, setExpandedItem] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -61,8 +69,12 @@ const App = () => {
     fetchData();
   }, []);
 
-  // Get it to take two arguments (start, end) and return the full from - to string.
-  // If start and end days are the same, return only one date
+
+  const toggleItem = (itemId) => {
+    setExpandedItem(itemId === expandedItem ? null : itemId);
+  };
+
+
   const renderDate = (timestamp1, timestamp2) => {
     const formatDate = (timestamp) => {
       const date = new Date(timestamp.seconds * 1000);
@@ -114,7 +126,7 @@ const App = () => {
                                            shadowOffset: { width: 0, height: 2 },
                                            shadowOpacity: 0.25,
                                            shadowRadius: 3.84,
-                                           elevation: 5  }} key={item.id}>
+                                           elevation: 5  }} key={item.id} onPress={() => toggleItem(item.id)}>
                   <View style={{flexDirection: "row"}}>
 
 
@@ -132,6 +144,12 @@ const App = () => {
                   
                   </View>
 
+                  {expandedItem === item.id && (
+                      <View>
+                        <Text>{item.desc}</Text>
+              
+                      </View>
+                    )}
 
                 </TouchableOpacity>
 
