@@ -18,7 +18,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 // Tags etc in main item 
 
 // TODO
-// Tapping a tag 
+// Tapping a tag - filter by tag
 // On press:
 // 1. Small Desc 
 // 2. Lists each sub-event
@@ -33,13 +33,12 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 // Time select
 // Select time from to
+// Calender view - click on the day
 
 // Order by
 // 1. Date
 // 2. Category
 // 3. Alphabetical
-
-// Calender view - click on the day
 
 // Move styles to seperate page
 
@@ -119,7 +118,8 @@ const App = () => {
                                                            time_start: doc.data().time_earliest,
                                                            time_end: doc.data().time_latest,
                                                            image_thumb: doc.data().images[0],
-                                                           tags: doc.data().tags
+                                                           tags: doc.data().tags,
+                                                           age: doc.data().Age_Rating
                                                           }));
       setData(fetchedData);
     };
@@ -184,6 +184,41 @@ const App = () => {
 
   }
 
+  const age_rating = (age) => {
+
+    if (age === "18") {
+      return <Image
+                source={require('./assets/BBFC_18_rz.png')}
+                style={{ width: 30, height: 30 }}/>
+
+    } else if (age === "15") {
+      return <Image
+          source={require('./assets/BBFC_15_rz.png')}
+          style={{ width: 30, height: 30 }}/>
+
+    } else if (age === "12A") {
+      return <Image
+          source={require('./assets/BBFC_12A_rz.png')}
+          style={{ width: 30, height: 30 }}/>
+
+    } else if (age === "PG") {
+      return <Image
+          source={require('./assets/BBFC_PG_rz.png')}
+          style={{ width: 35, height: 30 }}/>
+
+    } else if (age === "U") {
+      return <Image
+          source={require('./assets/BBFC_U_rz.png')}
+          style={{ width: 35, height: 30 }}/>
+
+    } else if (age) {
+      if (age.length <= 3){
+        return <Text style={{fontWeight: 'bold', marginBottom: 2, color: "white", fontSize: 20}}>{age}</Text>
+      }
+    }
+
+  }
+
   return (
     
       <View style={{ flex: 1, flexDirection: "row", justifyContent: 'center', alignItems: 'center',  backgroundColor: "#fec84d"}}>
@@ -212,7 +247,10 @@ const App = () => {
                     <View style={{flexDirection: "column", width: "75%", marginLeft: 5}}>                          
                       <Text style={{fontWeight: 'bold', marginBottom: 2, color: "white", fontSize: 20}}>{item.id}</Text>
                       <Text style={{fontWeight: 'bold', marginTop: 2, color: "white", marginBottom: 10}}>{renderDate(item.time_start, item.time_end)}</Text>
-                      {tag_render(item.tags, item.id)}
+                      <View style={{flexDirection: "row"}}>
+                        {tag_render(item.tags, item.id)}
+                        {age_rating(item.age)}
+                      </View>
                     </View>
                   
                   </View>
