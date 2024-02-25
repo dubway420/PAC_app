@@ -59,7 +59,7 @@ for show in shows:
 
     for property in show_properties:
 
-        meta_data[property.find("name").text] = property.value.text
+        meta_data[property.find("name").text.replace(" ", "_")] = property.value.text
 
 
     # Sub events ------------------------------------------------------------------------------------
