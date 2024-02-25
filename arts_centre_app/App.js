@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { getFirestore, collection, getDocs } from "firebase/firestore";
 import { app } from "./firebase_creds"
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { english, welsh } from './lang';
 
 // DONE
 // Get just a couple of lines of description
@@ -19,7 +20,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 // TODO
 // README
-// move 
+// move words to lang.js
 
 // scrolling makes top bar minimise
 
@@ -57,61 +58,14 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 // Licence and copyright notice
 
 
-const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-const tagRenders = {
-
-  cinema: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "red", borderRadius: 10, padding: 5, marginRight:5 }}> 
-              <Icon name="play" size={15} color="white" />
-              <Text style={{color: "white", marginLeft: 5}}>Cinema </Text>
-            </View>),
-
-  filmclub: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "blue", borderRadius: 10, padding: 5, marginRight:5}}> 
-              <Icon name="film" size={15} color="white" />
-              <Text style={{color: "white", marginLeft: 5}}>Film Club </Text>
-            </View>),
-
-  music: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "green", borderRadius: 10, padding: 5, marginRight:5}}> 
-              <Icon name="music" size={15} color="white" />
-              <Text style={{color: "white", marginLeft: 5}}>Music </Text>
-            </View>),
-            
-  panto: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "purple", borderRadius: 10, padding: 5, marginRight:5}}> 
-            <Icon name="star" size={15} color="white" />
-            <Text style={{color: "white", marginLeft: 5}}>Panto </Text>
-          </View>),
-
-  comedy: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#1a0e45", borderRadius: 10, padding: 5, marginRight:5}}> 
-            <Icon name="exclamation" size={15} color="white" />
-            <Text style={{color: "white", marginLeft: 5}}>Comedy </Text>
-          </View>),
-
-  poetry: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#c8b63b", borderRadius: 10, padding: 5, marginRight:5}}> 
-            <Icon name="comment" size={15} color="white" />
-            <Text style={{color: "white", marginLeft: 5}}>Poetry </Text>
-          </View>),
-
-  entertainment: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#c674d7", borderRadius: 10, padding: 5, marginRight:5}}> 
-                    <Icon name="thumbs-up" size={15} color="white" />
-                    <Text style={{color: "white", marginLeft: 5}}>Entertainment </Text>
-                  </View>),
-
-  family: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#0d7299", borderRadius: 10, padding: 5, marginRight:5}}> 
-            <Icon name="child" size={15} color="white" />
-            <Text style={{color: "white", marginLeft: 5}}>Family </Text>
-          </View>),
-
-  drama: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#e0b125", borderRadius: 10, padding: 5, marginRight:5}}> 
-            <Icon name="quote-right" size={15} color="white" />
-            <Text style={{color: "white", marginLeft: 5}}>Drama </Text>
-          </View>),
-
-};
-
 
 const App = () => {
   const [data, setData] = useState(null);
   const [expandedItem, setExpandedItem] = useState(null);
+  const [lang, setLang] = useState(english)
+
+  const monthNames = lang["months"]
+  const tagNames = lang["tags"]
 
   useEffect(() => {
     const fetchData = async () => {
@@ -171,6 +125,55 @@ const App = () => {
 
     return [formatDate(timestamp1) + " - " + formatDate(timestamp2)];
 
+  };
+
+  const tagRenders = {
+
+    cinema: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "red", borderRadius: 10, padding: 5, marginRight:5 }}> 
+                <Icon name="play" size={15} color="white" />
+                <Text style={{color: "white", marginLeft: 5}}>{tagNames["cinema"]} </Text>
+              </View>),
+  
+    filmclub: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "blue", borderRadius: 10, padding: 5, marginRight:5}}> 
+                <Icon name="film" size={15} color="white" />
+                <Text style={{color: "white", marginLeft: 5}}>{tagNames["filmclub"]} </Text>
+              </View>),
+  
+    music: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "green", borderRadius: 10, padding: 5, marginRight:5}}> 
+                <Icon name="music" size={15} color="white" />
+                <Text style={{color: "white", marginLeft: 5}}>{tagNames["music"]} </Text>
+              </View>),
+              
+    panto: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "purple", borderRadius: 10, padding: 5, marginRight:5}}> 
+              <Icon name="star" size={15} color="white" />
+              <Text style={{color: "white", marginLeft: 5}}>{tagNames["panto"]} </Text>
+            </View>),
+  
+    comedy: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#1a0e45", borderRadius: 10, padding: 5, marginRight:5}}> 
+              <Icon name="exclamation" size={15} color="white" />
+              <Text style={{color: "white", marginLeft: 5}}>{tagNames["comedy"]} </Text>
+            </View>),
+  
+    poetry: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#c8b63b", borderRadius: 10, padding: 5, marginRight:5}}> 
+              <Icon name="comment" size={15} color="white" />
+              <Text style={{color: "white", marginLeft: 5}}>{tagNames["poetry"]} </Text>
+            </View>),
+  
+    entertainment: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#c674d7", borderRadius: 10, padding: 5, marginRight:5}}> 
+                      <Icon name="thumbs-up" size={15} color="white" />
+                      <Text style={{color: "white", marginLeft: 5}}>{tagNames["entertainment"]} </Text>
+                    </View>),
+  
+    family: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#0d7299", borderRadius: 10, padding: 5, marginRight:5}}> 
+              <Icon name="child" size={15} color="white" />
+              <Text style={{color: "white", marginLeft: 5}}>{tagNames["family"]} </Text>
+            </View>),
+  
+    drama: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#e0b125", borderRadius: 10, padding: 5, marginRight:5}}> 
+              <Icon name="quote-right" size={15} color="white" />
+              <Text style={{color: "white", marginLeft: 5}}>{tagNames["drama"]} </Text>
+            </View>),
+  
   };
 
   const tag_render = (tags, id) => {
