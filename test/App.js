@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { getFirestore, collection, getDocs } from "firebase/firestore";
 import { app } from "./firebase_creds"
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 // DONE
 // Get just a couple of lines of description
@@ -12,12 +13,12 @@ import { app } from "./firebase_creds"
 // Press on event to see more info
 // Pressing once expands
 // Should be option to get more info in the form of a dialogue box
-
-
-// TODO
 // Make title text bigger
 // Remove desc from main item
 // Tags etc in main item 
+
+// TODO
+// Tapping a tag 
 // On press:
 // 1. Small Desc 
 // 2. Lists each sub-event
@@ -48,6 +49,61 @@ import { app } from "./firebase_creds"
 // Make it refresh if dragged down
 // Welsh/English Toggle
 
+// Search feature
+// Licence and copyright notice
+
+
+const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+const tagRenders = {
+
+  cinema: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "red", borderRadius: 10, padding: 5, marginRight:5 }}> 
+              <Icon name="play" size={15} color="white" />
+              <Text style={{color: "white", marginLeft: 5}}>Cinema </Text>
+            </View>),
+
+  filmclub: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "blue", borderRadius: 10, padding: 5, marginRight:5}}> 
+              <Icon name="film" size={15} color="white" />
+              <Text style={{color: "white", marginLeft: 5}}>Film Club </Text>
+            </View>),
+
+  music: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "green", borderRadius: 10, padding: 5, marginRight:5}}> 
+              <Icon name="music" size={15} color="white" />
+              <Text style={{color: "white", marginLeft: 5}}>Music </Text>
+            </View>),
+            
+  panto: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "purple", borderRadius: 10, padding: 5, marginRight:5}}> 
+            <Icon name="star" size={15} color="white" />
+            <Text style={{color: "white", marginLeft: 5}}>Panto </Text>
+          </View>),
+
+  comedy: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#1a0e45", borderRadius: 10, padding: 5, marginRight:5}}> 
+            <Icon name="exclamation" size={15} color="white" />
+            <Text style={{color: "white", marginLeft: 5}}>Comedy </Text>
+          </View>),
+
+  poetry: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#c8b63b", borderRadius: 10, padding: 5, marginRight:5}}> 
+            <Icon name="comment" size={15} color="white" />
+            <Text style={{color: "white", marginLeft: 5}}>Poetry </Text>
+          </View>),
+
+  entertainment: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#c674d7", borderRadius: 10, padding: 5, marginRight:5}}> 
+                    <Icon name="thumbs-up" size={15} color="white" />
+                    <Text style={{color: "white", marginLeft: 5}}>Entertainment </Text>
+                  </View>),
+
+  family: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#0d7299", borderRadius: 10, padding: 5, marginRight:5}}> 
+            <Icon name="child" size={15} color="white" />
+            <Text style={{color: "white", marginLeft: 5}}>Family </Text>
+          </View>),
+
+  drama: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#e0b125", borderRadius: 10, padding: 5, marginRight:5}}> 
+            <Icon name="quote-right" size={15} color="white" />
+            <Text style={{color: "white", marginLeft: 5}}>Drama </Text>
+          </View>),
+
+};
+
 
 const App = () => {
   const [data, setData] = useState(null);
@@ -62,7 +118,9 @@ const App = () => {
                                                            company: doc.data().company, 
                                                            time_start: doc.data().time_earliest,
                                                            time_end: doc.data().time_latest,
-                                                           image_thumb: doc.data().images[0]}));
+                                                           image_thumb: doc.data().images[0],
+                                                           tags: doc.data().tags
+                                                          }));
       setData(fetchedData);
     };
 
@@ -80,7 +138,6 @@ const App = () => {
       const date = new Date(timestamp.seconds * 1000);
   
       // Get the month name
-      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
       const month = monthNames[date.getMonth()];
   
       // Get the day with suffix
@@ -111,6 +168,22 @@ const App = () => {
 
   };
 
+  const tag_render = (tags, id) => {
+
+    
+    const tag_list = tags.map(item => (
+                                      <View key={item.concat(id)}> 
+                                        {tagRenders[item]} 
+                                      </View>
+    ))
+
+
+    return (<View style={{flexDirection: "row"}}> 
+              {tag_list} 
+            </View>)
+
+  }
+
   return (
     
       <View style={{ flex: 1, flexDirection: "row", justifyContent: 'center', alignItems: 'center',  backgroundColor: "#fec84d"}}>
@@ -137,16 +210,16 @@ const App = () => {
 
 
                     <View style={{flexDirection: "column", width: "75%", marginLeft: 5}}>                          
-                      <Text style={{fontWeight: 'bold', marginBottom: 2, color: "white"}}>{item.id}</Text>
-                      <Text style={{color: "white", marginBottom: 3}}>{item.desc.split(" ").slice(0, 20).join(' ').concat("...")}</Text>
-                      <Text style={{fontWeight: 'bold', marginTop: 2, color: "white"}}>{renderDate(item.time_start, item.time_end)}</Text>
+                      <Text style={{fontWeight: 'bold', marginBottom: 2, color: "white", fontSize: 20}}>{item.id}</Text>
+                      <Text style={{fontWeight: 'bold', marginTop: 2, color: "white", marginBottom: 10}}>{renderDate(item.time_start, item.time_end)}</Text>
+                      {tag_render(item.tags, item.id)}
                     </View>
                   
                   </View>
 
                   {expandedItem === item.id && (
                       <View>
-                        <Text>{item.desc}</Text>
+                        <Text style={{color: "white", marginTop: 3}} >{item.desc.split(" ").slice(0, 20).join(' ').concat("...")}</Text>
               
                       </View>
                     )}
