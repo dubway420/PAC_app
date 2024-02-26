@@ -65,7 +65,7 @@ const App = () => {
   const [expandedItem, setExpandedItem] = useState(null);
   const [lang, setLang] = useState(english)
 
-  const [scrollDirection, setScrollDirection] = useState(null);
+  const [scrollDirection, setScrollDirection] = useState('up');
   const [lastScrollPosition, setLastScrollPosition] = useState(0);
 
   const monthNames = lang["months"]
@@ -133,58 +133,58 @@ const App = () => {
 
   const tagRenders = {
 
-    cinema: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "red", borderRadius: 10, padding: 5, marginRight:5 }}> 
+    cinema: (<TouchableOpacity style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "red", borderRadius: 10, padding: 5, marginRight:5 }}> 
                 <Icon name="play" size={15} color="white" />
                 <Text style={{color: "white", marginLeft: 5}}>{tagNames["cinema"]} </Text>
-              </View>),
+              </TouchableOpacity>),
   
-    filmclub: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "blue", borderRadius: 10, padding: 5, marginRight:5}}> 
+    filmclub: (<TouchableOpacity style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "blue", borderRadius: 10, padding: 5, marginRight:5}}> 
                 <Icon name="film" size={15} color="white" />
                 <Text style={{color: "white", marginLeft: 5}}>{tagNames["filmclub"]} </Text>
-              </View>),
+              </TouchableOpacity>),
   
-    music: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "green", borderRadius: 10, padding: 5, marginRight:5}}> 
+    music: (<TouchableOpacity style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "green", borderRadius: 10, padding: 5, marginRight:5}}> 
                 <Icon name="music" size={15} color="white" />
                 <Text style={{color: "white", marginLeft: 5}}>{tagNames["music"]} </Text>
-              </View>),
+              </TouchableOpacity>),
               
-    panto: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "purple", borderRadius: 10, padding: 5, marginRight:5}}> 
+    panto: (<TouchableOpacity style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "purple", borderRadius: 10, padding: 5, marginRight:5}}> 
               <Icon name="star" size={15} color="white" />
               <Text style={{color: "white", marginLeft: 5}}>{tagNames["panto"]} </Text>
-            </View>),
+            </TouchableOpacity>),
   
-    comedy: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#1a0e45", borderRadius: 10, padding: 5, marginRight:5}}> 
+    comedy: (<TouchableOpacity style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#1a0e45", borderRadius: 10, padding: 5, marginRight:5}}> 
               <Icon name="exclamation" size={15} color="white" />
               <Text style={{color: "white", marginLeft: 5}}>{tagNames["comedy"]} </Text>
-            </View>),
+            </TouchableOpacity>),
   
-    poetry: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#c8b63b", borderRadius: 10, padding: 5, marginRight:5}}> 
+    poetry: (<TouchableOpacity style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#c8b63b", borderRadius: 10, padding: 5, marginRight:5}}> 
               <Icon name="comment" size={15} color="white" />
               <Text style={{color: "white", marginLeft: 5}}>{tagNames["poetry"]} </Text>
-            </View>),
+            </TouchableOpacity>),
   
-    entertainment: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#c674d7", borderRadius: 10, padding: 5, marginRight:5}}> 
+    entertainment: (<TouchableOpacity style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#c674d7", borderRadius: 10, padding: 5, marginRight:5}}> 
                       <Icon name="thumbs-up" size={15} color="white" />
                       <Text style={{color: "white", marginLeft: 5}}>{tagNames["entertainment"]} </Text>
-                    </View>),
+                    </TouchableOpacity>),
   
-    family: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#0d7299", borderRadius: 10, padding: 5, marginRight:5}}> 
+    family: (<TouchableOpacity style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#0d7299", borderRadius: 10, padding: 5, marginRight:5}}> 
               <Icon name="child" size={15} color="white" />
               <Text style={{color: "white", marginLeft: 5}}>{tagNames["family"]} </Text>
-            </View>),
+            </TouchableOpacity>),
   
-    drama: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#e0b125", borderRadius: 10, padding: 5, marginRight:5}}> 
+    drama: (<TouchableOpacity style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#e0b125", borderRadius: 10, padding: 5, marginRight:5}}> 
               <Icon name="quote-right" size={15} color="white" />
               <Text style={{color: "white", marginLeft: 5}}>{tagNames["drama"]} </Text>
-            </View>),
+            </TouchableOpacity>),
   
   };
 
-  const tag_render = (tags, id) => {
+  const tag_render = (tags, id, h=35) => {
 
     
     const tag_list = tags.map(item => (
-                                      <View key={item.concat(id)}> 
+                                      <View style={{height: h}} key={item.concat(id)}> 
                                         {tagRenders[item]} 
                                       </View>
     ))
@@ -234,14 +234,21 @@ const App = () => {
   const scrolling = (event) => {
 
     const currentScrollPosition = event.nativeEvent.contentOffset.y;
+    console.log(currentScrollPosition)
+
+    if (currentScrollPosition <= 0) {
+      setScrollDirection('up')
+      return
+    }
 
     if (currentScrollPosition > lastScrollPosition) {
 
       setScrollDirection('down');
-    } else if (currentScrollPosition < lastScrollPosition) {
+    } 
+    // else if (currentScrollPosition <= lastScrollPosition) {
 
-      setScrollDirection('up');
-    }
+    //   setScrollDirection('up');
+    // }
 
     setLastScrollPosition(currentScrollPosition);
 
@@ -249,29 +256,21 @@ const App = () => {
 
   return (
     
-      <View style={{ flex: 1, flexDirection: "row", justifyContent: 'center', alignItems: 'center',  backgroundColor: "#fec84d", paddingTop: 25,}}>
+      <View style={{ flex: 1, flexDirection: "row", justifyContent: 'center', alignItems: 'center',  backgroundColor: "#fec84d"}}>
         
         {data ? (
 
-          <View>
+          <View style={{paddingTop: 25}}>
 
-            {/* <StatusBar
-                    backgroundColor="#FF6347" // Background color of the status bar
-                    barStyle="light-content" // Content color of the status bar (light or dark)
-                    translucent={false} // Set to true if you want the status bar to be translucent
-                  /> */}
 
-  
-            
             <LinearGradient
-                  colors={['#fed74d', '#fec81d']}
+                  colors={['#e42256', '#ff8370']}
                   start={{ x: 0, y: 0 }}
-                  end={{ x: 0.5, y: 0.5 }}
-                  style={{ flexDirection: "row", alignItems: 'center', justifyContent: 'space-between', padding: 2}}
+                  end={{ x: 0.75, y: 1 }}
+                  style={{ flexDirection: "row", alignItems: 'center', justifyContent: 'space-between', padding: 3}}
                 >
 
-
-                  <Text style={{marginLeft: 4, color: "#e42256", fontWeight: "bold", borderBottomWidth: 1, borderColor: "black"}}>{"Pontardawe \nArts Centre"}</Text>
+                  <Text style={{marginLeft: 4, color: "white", fontWeight: "bold", borderBottomWidth: 1, borderColor: "black"}}>{"Pontardawe \nArts Centre"}</Text>
                   <View style={{flexDirection: "row"}}>
                     <TouchableOpacity style={{backgroundColor: "grey", marginRight: 5, borderRadius: 8}}>
                       <Icon name="search" size={25} color="white" style={{padding: 4}} />
@@ -282,10 +281,12 @@ const App = () => {
                   </View>
 
             </LinearGradient> 
-            
 
 
-            <ScrollView onScroll={scrolling} scrollEventThrottle={1024} style={{ backgroundColor: "#fec84d" }}>
+
+            <ScrollView 
+                      // onScroll={scrolling} scrollEventThrottle={1} 
+                      style={{ backgroundColor: "#fec84d" }}>
                 <View style={{ flex: 1, flexDirection: "vertical", justifyContent: 'start', alignItems: 'start', marginTop: 5, backgroundColor: "#fec84d" }}>
 
                   {data.map(item => (
@@ -330,6 +331,18 @@ const App = () => {
 
                 </View>
             </ScrollView>
+            
+            <LinearGradient
+                  colors={['#ff8370', '#ff8370']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 0.75, y: 1 }}
+                  style={{ flexDirection: "row", alignItems: 'center', justifyContent: 'space-between', padding: 3}}
+                >
+              <ScrollView horizontal={true} style={{padding: 5, height: 40}}>
+                          {tag_render(["cinema", "filmclub", "music", "panto", "comedy", "poetry", "entertainment", "family", "drama"], "bar", 100)}
+              </ScrollView>
+            </LinearGradient>
+
           </View>
 
           ) : (
