@@ -1,14 +1,14 @@
 
 export const english = {
 
-                months : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], 
+                months : ['Ionawr', 'Chwefror', 'Mawrth', 'Ebrill', 'Mai', 'Mehefin', 'Gorffennaf', 'Awst', 'Medi', 'Hydref', 'Tachwedd', 'Rhagfyr'], 
                 
                 tags: {
-                        cinema: 'Cinema', 
+                        cinema: 'sinema', 
                         filmclub: 'Film Club', 
-                        music: 'Music', 
-                        panto: 'Panto', 
-                        comedy: 'Comedy',
+                        music: 'cerddorieth', 
+                        panto: 'Gweiadur', 
+                        comedy: 'comedi',
                         poetry: "Poetry",
                         entertainment: "Entertainment",
                         family: "Family",
