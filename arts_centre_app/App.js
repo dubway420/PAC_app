@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, StatusBar } from 'react-native';
-import { getFirestore, collection, getDocs } from "firebase/firestore";
+import { getFirestore, collection, getDocs, disableNetwork } from "firebase/firestore";
 import { app } from "./firebase_creds"
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { english, welsh } from './lang';
@@ -68,28 +68,43 @@ const App = () => {
 
   const [scrollDirection, setScrollDirection] = useState('up');
   const [lastScrollPosition, setLastScrollPosition] = useState(0);
+  const [refresh, setRefresh] = useState(1)
 
+  const [filterTag, setFilterTag] = useState(null)
   const monthNames = lang["months"]
   const tagNames = lang["tags"]
 
+
+  const fetchData = async () => {
+    const db = getFirestore(app);
+    const querySnapshot = await getDocs(collection(db, "events"));
+    const fetchedData = querySnapshot.docs.map(doc => ({ id: doc.id,
+                                                         desc: doc.data().description, 
+                                                         company: doc.data().company, 
+                                                         time_start: doc.data().time_earliest,
+                                                         time_end: doc.data().time_latest,
+                                                         image_thumb: doc.data().images[0],
+                                                         tags: doc.data().tags,
+                                                         age: doc.data().Age_Rating
+                                                        }));
+
+    if (filterTag) {
+       filteredData = fetchedData.filter(item => item.tags.includes(filterTag));
+    }
+    else {
+      
+       filteredData = fetchedData
+    }
+
+    setData(filteredData);
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      const db = getFirestore(app);
-      const querySnapshot = await getDocs(collection(db, "events"));
-      const fetchedData = querySnapshot.docs.map(doc => ({ id: doc.id,
-                                                           desc: doc.data().description, 
-                                                           company: doc.data().company, 
-                                                           time_start: doc.data().time_earliest,
-                                                           time_end: doc.data().time_latest,
-                                                           image_thumb: doc.data().images[0],
-                                                           tags: doc.data().tags,
-                                                           age: doc.data().Age_Rating
-                                                          }));
-      setData(fetchedData);
-    };
+
+    console.log("use effect")
 
     fetchData();
-  }, []);
+  }, [filterTag]);
 
 
   const toggleItem = (itemId) => {
@@ -132,6 +147,17 @@ const App = () => {
 
   };
 
+  filter_events = (filter_name, type="tag") => {
+
+    if (type == "tag") {
+
+      setFilterTag(filter_name)
+      // fetchData()
+
+    }
+
+  }
+
 
   const tag_render = (tags, id, h=35) => {
 
@@ -142,7 +168,7 @@ const App = () => {
       (
         <View style={{height: h}} key={item.concat(id)}> 
 
-          <TouchableOpacity style={[styles.tagButton, {backgroundColor: tag_attributes[item][1]}]}> 
+          <TouchableOpacity onPress={() => filter_events(item)} style={[styles.tagButton, {backgroundColor: tag_attributes[item][1]}]}> 
             <Icon name={tag_attributes[item][0]} size={15} color="white" />
             <Text style={styles.tagText}>{tagNames[item]} </Text>
           </TouchableOpacity>
