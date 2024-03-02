@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
-import { getFirestore, collection, getDocs } from "firebase/firestore";
+import { View, Text, ScrollView, TouchableOpacity, Image, StatusBar } from 'react-native';
+import { getFirestore, collection, getDocs, disableNetwork } from "firebase/firestore";
 import { app } from "./firebase_creds"
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { english, welsh } from './lang';
+import {LinearGradient} from 'expo-linear-gradient';
+import { tag_attributes } from './constants';
+import { styles } from './styles';
 
 // DONE
 // Get just a couple of lines of description
@@ -16,12 +20,13 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 // Make title text bigger
 // Remove desc from main item
 // Tags etc in main item 
+// README
+// move words to lang.js
+// Move styles to seperate page
+// Status bar
+// Title bar
 
 // TODO
-// README
-// move 
-
-// scrolling makes top bar minimise
 
 // Tapping a tag - filter by tag
 // On press:
@@ -45,10 +50,6 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 // 2. Category
 // 3. Alphabetical
 
-// Move styles to seperate page
-
-// Status bar
-// Title bar
 
 // Make it refresh if dragged down
 // Welsh/English Toggle
@@ -56,81 +57,54 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 // Search feature
 // Licence and copyright notice
 
+// scrolling makes top bar minimise
 
-const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-const tagRenders = {
-
-  cinema: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "red", borderRadius: 10, padding: 5, marginRight:5 }}> 
-              <Icon name="play" size={15} color="white" />
-              <Text style={{color: "white", marginLeft: 5}}>Cinema </Text>
-            </View>),
-
-  filmclub: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "blue", borderRadius: 10, padding: 5, marginRight:5}}> 
-              <Icon name="film" size={15} color="white" />
-              <Text style={{color: "white", marginLeft: 5}}>Film Club </Text>
-            </View>),
-
-  music: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "green", borderRadius: 10, padding: 5, marginRight:5}}> 
-              <Icon name="music" size={15} color="white" />
-              <Text style={{color: "white", marginLeft: 5}}>Music </Text>
-            </View>),
-            
-  panto: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "purple", borderRadius: 10, padding: 5, marginRight:5}}> 
-            <Icon name="star" size={15} color="white" />
-            <Text style={{color: "white", marginLeft: 5}}>Panto </Text>
-          </View>),
-
-  comedy: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#1a0e45", borderRadius: 10, padding: 5, marginRight:5}}> 
-            <Icon name="exclamation" size={15} color="white" />
-            <Text style={{color: "white", marginLeft: 5}}>Comedy </Text>
-          </View>),
-
-  poetry: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#c8b63b", borderRadius: 10, padding: 5, marginRight:5}}> 
-            <Icon name="comment" size={15} color="white" />
-            <Text style={{color: "white", marginLeft: 5}}>Poetry </Text>
-          </View>),
-
-  entertainment: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#c674d7", borderRadius: 10, padding: 5, marginRight:5}}> 
-                    <Icon name="thumbs-up" size={15} color="white" />
-                    <Text style={{color: "white", marginLeft: 5}}>Entertainment </Text>
-                  </View>),
-
-  family: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#0d7299", borderRadius: 10, padding: 5, marginRight:5}}> 
-            <Icon name="child" size={15} color="white" />
-            <Text style={{color: "white", marginLeft: 5}}>Family </Text>
-          </View>),
-
-  drama: (<View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#e0b125", borderRadius: 10, padding: 5, marginRight:5}}> 
-            <Icon name="quote-right" size={15} color="white" />
-            <Text style={{color: "white", marginLeft: 5}}>Drama </Text>
-          </View>),
-
-};
 
 
 const App = () => {
   const [data, setData] = useState(null);
   const [expandedItem, setExpandedItem] = useState(null);
+  const [lang, setLang] = useState(english)
+
+  const [scrollDirection, setScrollDirection] = useState('up');
+  const [lastScrollPosition, setLastScrollPosition] = useState(0);
+  const [refresh, setRefresh] = useState(1)
+
+  const [filterTag, setFilterTag] = useState(null)
+  const monthNames = lang["months"]
+  const tagNames = lang["tags"]
+
+
+  const fetchData = async () => {
+    const db = getFirestore(app);
+    const querySnapshot = await getDocs(collection(db, "events"));
+    const fetchedData = querySnapshot.docs.map(doc => ({ id: doc.id,
+                                                         desc: doc.data().description, 
+                                                         company: doc.data().company, 
+                                                         time_start: doc.data().time_earliest,
+                                                         time_end: doc.data().time_latest,
+                                                         image_thumb: doc.data().images[0],
+                                                         tags: doc.data().tags,
+                                                         age: doc.data().Age_Rating
+                                                        }));
+
+    if (filterTag) {
+       filteredData = fetchedData.filter(item => item.tags.includes(filterTag));
+    }
+    else {
+      
+       filteredData = fetchedData
+    }
+
+    setData(filteredData);
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      const db = getFirestore(app);
-      const querySnapshot = await getDocs(collection(db, "events"));
-      const fetchedData = querySnapshot.docs.map(doc => ({ id: doc.id,
-                                                           desc: doc.data().description, 
-                                                           company: doc.data().company, 
-                                                           time_start: doc.data().time_earliest,
-                                                           time_end: doc.data().time_latest,
-                                                           image_thumb: doc.data().images[0],
-                                                           tags: doc.data().tags,
-                                                           age: doc.data().Age_Rating
-                                                          }));
-      setData(fetchedData);
-    };
+
+    console.log("use effect")
 
     fetchData();
-  }, []);
+  }, [filterTag]);
 
 
   const toggleItem = (itemId) => {
@@ -173,14 +147,33 @@ const App = () => {
 
   };
 
-  const tag_render = (tags, id) => {
+  filter_events = (filter_name, type="tag") => {
 
-    
-    const tag_list = tags.map(item => (
-                                      <View key={item.concat(id)}> 
-                                        {tagRenders[item]} 
-                                      </View>
-    ))
+    if (type == "tag") {
+
+      setFilterTag(filter_name)
+      // fetchData()
+
+    }
+
+  }
+
+
+  const tag_render = (tags, id, h=35) => {
+
+    const validTags = tags.filter(tag => tag_attributes[tag]);
+    const tag_list = validTags.map(item => 
+      
+                                      
+      (
+        <View style={{height: h}} key={item.concat(id)}> 
+
+          <TouchableOpacity onPress={() => filter_events(item)} style={[styles.tagButton, {backgroundColor: tag_attributes[item][1]}]}> 
+            <Icon name={tag_attributes[item][0]} size={15} color="white" />
+            <Text style={styles.tagText}>{tagNames[item]} </Text>
+          </TouchableOpacity>
+        </View>
+      ))
 
 
     return (<View style={{flexDirection: "row"}}> 
@@ -189,95 +182,159 @@ const App = () => {
 
   }
 
+
   const age_rating = (age) => {
 
     if (age === "18") {
       return <Image
                 source={require('./assets/BBFC_18_rz.png')}
-                style={{ width: 30, height: 30 }}/>
+                style={styles.ageRatingImage}/>
 
     } else if (age === "15") {
       return <Image
           source={require('./assets/BBFC_15_rz.png')}
-          style={{ width: 30, height: 30 }}/>
+          style={styles.ageRatingImage}/>
 
     } else if (age === "12A") {
       return <Image
           source={require('./assets/BBFC_12A_rz.png')}
-          style={{ width: 30, height: 30 }}/>
+          style={styles.ageRatingImage}/>
 
     } else if (age === "PG") {
       return <Image
           source={require('./assets/BBFC_PG_rz.png')}
-          style={{ width: 35, height: 30 }}/>
+          style={styles.ageRatingImageUPG}/>
 
     } else if (age === "U") {
       return <Image
           source={require('./assets/BBFC_U_rz.png')}
-          style={{ width: 35, height: 30 }}/>
+          style={styles.ageRatingImageUPG}/>
 
     } else if (age) {
       if (age.length <= 3){
-        return <Text style={{fontWeight: 'bold', marginBottom: 2, color: "white", fontSize: 20}}>{age}</Text>
+        return <Text style={styles.ageRatingText}>{age}</Text>
       }
     }
 
   }
 
+  const scrolling = (event) => {
+
+    const currentScrollPosition = event.nativeEvent.contentOffset.y;
+    console.log(currentScrollPosition)
+
+    if (currentScrollPosition <= 0) {
+      setScrollDirection('up')
+      return
+    }
+
+    if (currentScrollPosition > lastScrollPosition) {
+
+      setScrollDirection('down');
+    } 
+    // else if (currentScrollPosition <= lastScrollPosition) {
+
+    //   setScrollDirection('up');
+    // }
+
+    setLastScrollPosition(currentScrollPosition);
+
+  }
+
   return (
     
-      <View style={{ flex: 1, flexDirection: "row", justifyContent: 'center', alignItems: 'center',  backgroundColor: "#fec84d"}}>
+      <View style={styles.mainPageBackground}>
         
         {data ? (
 
-          <ScrollView style={{backgroundColor: "#fec84d"}}>
-            <View style={{ flex: 1, flexDirection: "vertical", justifyContent: 'start', alignItems: 'start', marginTop: 30, backgroundColor: "#fec84d"}}>
-              
-              {data.map(item => (
-              
-                <TouchableOpacity style={{ flex: 1, width: "100%", alignItems: 'start', marginTop: 30, padding: 10, backgroundColor: "#00b1b0",   shadowColor: '#000',
-                                           shadowOffset: { width: 0, height: 2 },
-                                           shadowOpacity: 0.25,
-                                           shadowRadius: 3.84,
-                                           elevation: 5  }} key={item.id} onPress={() => toggleItem(item.id)}>
-                  <View style={{flexDirection: "row"}}>
+          <View style={{paddingTop: 25}}>
 
 
-                    <Image
-                      source={{ uri: item.image_thumb }}
-                      style={{ width: 100, height: 100 }}
-                    />
+            <LinearGradient
+                  colors={styles.topBar.colors}
+                  start={styles.topBar.start}
+                  end={styles.topBar.end}
+                  style={styles.topBar.style}
+                >
 
+                  <Text style={styles.title}>{"Pontardawe \nArts Centre"}</Text>
+                  <View style={styles.topBarButtons}>
 
-                    <View style={{flexDirection: "column", width: "75%", marginLeft: 5}}>                          
-                      <Text style={{fontWeight: 'bold', marginBottom: 2, color: "white", fontSize: 20}}>{item.id}</Text>
-                      <Text style={{fontWeight: 'bold', marginTop: 2, color: "white", marginBottom: 10}}>{renderDate(item.time_start, item.time_end)}</Text>
-                      <View style={{flexDirection: "row"}}>
-                        {tag_render(item.tags, item.id)}
-                        {age_rating(item.age)}
-                      </View>
-                    </View>
-                  
+                    <TouchableOpacity style={styles.topBarButton}>
+                      <Icon name="search" size={styles.topBarButtonIcon.size} color={styles.topBarButtonIcon.color} style={styles.topBarButtonIcon.style} />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.topBarButton}>
+                      <Icon name="calendar" size={styles.topBarButtonIcon.size} color={styles.topBarButtonIcon.color} style={styles.topBarButtonIcon.style} />
+                    </TouchableOpacity>
+
                   </View>
 
-                  {expandedItem === item.id && (
+            </LinearGradient> 
+
+
+
+            <ScrollView 
+                      // onScroll={scrolling} scrollEventThrottle={1} 
+                      style={styles.eventsBackground}>
+
+              <View style={styles.eventsList}>
+
+                {data.map(item => (
+
+                  <TouchableOpacity style={styles.eventItemSurround} key={item.id} onPress={() => toggleItem(item.id)}>
+
+                    <View style={styles.eventBlock}>
+
+
+                      <Image
+                        source={{ uri: item.image_thumb }}
+                        style={styles.eventImageThumb} />
+
+
+                      <View style={styles.eventInfoBlock}>
+                        <Text style={styles.eventName}>{item.id}</Text>
+                        <Text style={styles.eventDate}>{renderDate(item.time_start, item.time_end)}</Text>
+                        <View style={styles.eventTagsBox}>
+                          {tag_render(item.tags, item.id)}
+                          {age_rating(item.age)}
+                        </View>
+                      </View>
+
+                    </View>
+
+                    {expandedItem === item.id && (
                       <View>
-                        <Text style={{color: "white", marginTop: 3}} >{item.desc.split(" ").slice(0, 20).join(' ').concat("...")}</Text>
-              
+                        <Text style={styles.eventDesc}>{item.desc.split(" ").slice(0, 20).join(' ').concat("...")}</Text>
+                        <Text style={styles.moreInfoButton}>[More Info]</Text>
                       </View>
                     )}
 
-                </TouchableOpacity>
+                  </TouchableOpacity>
+                
+                ))}
 
-              ))}
+              </View>
+            </ScrollView>
+            
+            <LinearGradient
+                  colors={styles.bottomBarActual.colors}
+                  start={styles.bottomBarActual.start}
+                  end={styles.bottomBarActual.end}
+                  style={styles.bottomBarActual.style}
+                >
+              <ScrollView horizontal={true} style={styles.bottomBarScroll}>
+                          {tag_render(["cinema", "filmclub", "music", "panto", "comedy", "poetry", "entertainment", "family", "drama"], "bar", 100)}
+              </ScrollView>
+            </LinearGradient>
 
-            </View>
-          </ScrollView>
+          </View>
 
+          ) : (
 
-        ) : (
-          <Text style={{flex: 1, textAlign: 'center', backgroundColor: "#e42256", color: "white", fontSize: 30, padding: 5}}>{"Pontardawe \n Arts \n Centre"}</Text>
-        )}
+            // The splash screen
+            <Text style={styles.splashScreen}>{"Pontardawe \n Arts \n Centre"}</Text>
+          )}
 
       </View>
     

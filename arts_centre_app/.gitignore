@@ -37,3 +37,6 @@ yarn-error.*
 # native files
 android
 ios
+
+# lock files
+*lock*
