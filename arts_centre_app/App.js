@@ -282,14 +282,14 @@ const App = () => {
 
                 {data.map(item => (
 
-<LinearGradient
-colors={['#367588', '#20b2aa']} // Gradient colors
-start={{ x: 0, y: 0 }} // Optional start point for the gradient (default is {x: 0, y: 0})
-end={{ x: 1, y: 0 }} // Optional end point for the gradient (default is {x: 0, y: 0})
-style={styles.eventItemSurround} // Your styles for the item
-key={item.id}
-onPress={() => toggleItem(item.id)}
->
+                    <LinearGradient
+                      colors={styles.eventItemSurround.colors} // Gradient colors
+                      start={styles.eventItemSurround.start} // Optional start point for the gradient (default is {x: 0, y: 0})
+                      end={styles.eventItemSurround.end} // Optional end point for the gradient (default is {x: 0, y: 0})
+                      style={styles.eventItemSurround.style} // Your styles for the item
+                      key={item.id}
+                      onPress={() => toggleItem(item.id)}
+                    >
 
                   
                     <View style={styles.eventBlock}>

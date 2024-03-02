@@ -139,6 +139,18 @@ export const styles = StyleSheet.create({
 
     // The outer most part of the event items
     eventItemSurround: {
+        colors: ['#367588', '#20b2aa'],
+        start: { x: 0, y: 0 },
+        end: { x: 1, y: 0 },
+        style: { 
+            flexDirection: "row", 
+            alignItems: 'center', 
+            justifyContent: 'space-between', 
+            padding: 3
+        }
+
+    },
+    style: {
         flex: 1, 
         width: "100%", 
         alignItems: 'start', 
