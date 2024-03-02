@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, StatusBar } from 'react-native';
-import { getFirestore, collection, getDocs } from "firebase/firestore";
+import { getFirestore, collection, getDocs, disableNetwork } from "firebase/firestore";
 import { app } from "./firebase_creds"
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { english, welsh } from './lang';
 import {LinearGradient} from 'expo-linear-gradient';
+import { tag_attributes } from './constants';
+import { styles } from './styles';
 
 // DONE
 // Get just a couple of lines of description
@@ -20,10 +22,11 @@ import {LinearGradient} from 'expo-linear-gradient';
 // Tags etc in main item 
 // README
 // move words to lang.js
+// Move styles to seperate page
+// Status bar
+// Title bar
 
 // TODO
-
-// scrolling makes top bar minimise
 
 // Tapping a tag - filter by tag
 // On press:
@@ -47,16 +50,14 @@ import {LinearGradient} from 'expo-linear-gradient';
 // 2. Category
 // 3. Alphabetical
 
-// Move styles to seperate page
-
-// Status bar
-// Title bar
 
 // Make it refresh if dragged down
 // Welsh/English Toggle
 
 // Search feature
 // Licence and copyright notice
+
+// scrolling makes top bar minimise
 
 
 
@@ -67,28 +68,43 @@ const App = () => {
 
   const [scrollDirection, setScrollDirection] = useState('up');
   const [lastScrollPosition, setLastScrollPosition] = useState(0);
+  const [refresh, setRefresh] = useState(1)
 
+  const [filterTag, setFilterTag] = useState(null)
   const monthNames = lang["months"]
   const tagNames = lang["tags"]
 
+
+  const fetchData = async () => {
+    const db = getFirestore(app);
+    const querySnapshot = await getDocs(collection(db, "events"));
+    const fetchedData = querySnapshot.docs.map(doc => ({ id: doc.id,
+                                                         desc: doc.data().description, 
+                                                         company: doc.data().company, 
+                                                         time_start: doc.data().time_earliest,
+                                                         time_end: doc.data().time_latest,
+                                                         image_thumb: doc.data().images[0],
+                                                         tags: doc.data().tags,
+                                                         age: doc.data().Age_Rating
+                                                        }));
+
+    if (filterTag) {
+       filteredData = fetchedData.filter(item => item.tags.includes(filterTag));
+    }
+    else {
+      
+       filteredData = fetchedData
+    }
+
+    setData(filteredData);
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      const db = getFirestore(app);
-      const querySnapshot = await getDocs(collection(db, "events"));
-      const fetchedData = querySnapshot.docs.map(doc => ({ id: doc.id,
-                                                           desc: doc.data().description, 
-                                                           company: doc.data().company, 
-                                                           time_start: doc.data().time_earliest,
-                                                           time_end: doc.data().time_latest,
-                                                           image_thumb: doc.data().images[0],
-                                                           tags: doc.data().tags,
-                                                           age: doc.data().Age_Rating
-                                                          }));
-      setData(fetchedData);
-    };
+
+    console.log("use effect")
 
     fetchData();
-  }, []);
+  }, [filterTag]);
 
 
   const toggleItem = (itemId) => {
@@ -131,63 +147,33 @@ const App = () => {
 
   };
 
-  const tagRenders = {
+  filter_events = (filter_name, type="tag") => {
 
-    cinema: (<TouchableOpacity style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "red", borderRadius: 10, padding: 5, marginRight:5 }}> 
-                <Icon name="play" size={15} color="white" />
-                <Text style={{color: "white", marginLeft: 5}}>{tagNames["cinema"]} </Text>
-              </TouchableOpacity>),
-  
-    filmclub: (<TouchableOpacity style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "blue", borderRadius: 10, padding: 5, marginRight:5}}> 
-                <Icon name="film" size={15} color="white" />
-                <Text style={{color: "white", marginLeft: 5}}>{tagNames["filmclub"]} </Text>
-              </TouchableOpacity>),
-  
-    music: (<TouchableOpacity style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "green", borderRadius: 10, padding: 5, marginRight:5}}> 
-                <Icon name="music" size={15} color="white" />
-                <Text style={{color: "white", marginLeft: 5}}>{tagNames["music"]} </Text>
-              </TouchableOpacity>),
-              
-    panto: (<TouchableOpacity style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "purple", borderRadius: 10, padding: 5, marginRight:5}}> 
-              <Icon name="star" size={15} color="white" />
-              <Text style={{color: "white", marginLeft: 5}}>{tagNames["panto"]} </Text>
-            </TouchableOpacity>),
-  
-    comedy: (<TouchableOpacity style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#1a0e45", borderRadius: 10, padding: 5, marginRight:5}}> 
-              <Icon name="exclamation" size={15} color="white" />
-              <Text style={{color: "white", marginLeft: 5}}>{tagNames["comedy"]} </Text>
-            </TouchableOpacity>),
-  
-    poetry: (<TouchableOpacity style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#c8b63b", borderRadius: 10, padding: 5, marginRight:5}}> 
-              <Icon name="comment" size={15} color="white" />
-              <Text style={{color: "white", marginLeft: 5}}>{tagNames["poetry"]} </Text>
-            </TouchableOpacity>),
-  
-    entertainment: (<TouchableOpacity style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#c674d7", borderRadius: 10, padding: 5, marginRight:5}}> 
-                      <Icon name="thumbs-up" size={15} color="white" />
-                      <Text style={{color: "white", marginLeft: 5}}>{tagNames["entertainment"]} </Text>
-                    </TouchableOpacity>),
-  
-    family: (<TouchableOpacity style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#0d7299", borderRadius: 10, padding: 5, marginRight:5}}> 
-              <Icon name="child" size={15} color="white" />
-              <Text style={{color: "white", marginLeft: 5}}>{tagNames["family"]} </Text>
-            </TouchableOpacity>),
-  
-    drama: (<TouchableOpacity style={{flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#e0b125", borderRadius: 10, padding: 5, marginRight:5}}> 
-              <Icon name="quote-right" size={15} color="white" />
-              <Text style={{color: "white", marginLeft: 5}}>{tagNames["drama"]} </Text>
-            </TouchableOpacity>),
-  
-  };
+    if (type == "tag") {
+
+      setFilterTag(filter_name)
+      // fetchData()
+
+    }
+
+  }
+
 
   const tag_render = (tags, id, h=35) => {
 
-    
-    const tag_list = tags.map(item => (
-                                      <View style={{height: h}} key={item.concat(id)}> 
-                                        {tagRenders[item]} 
-                                      </View>
-    ))
+    const validTags = tags.filter(tag => tag_attributes[tag]);
+    const tag_list = validTags.map(item => 
+      
+                                      
+      (
+        <View style={{height: h}} key={item.concat(id)}> 
+
+          <TouchableOpacity onPress={() => filter_events(item)} style={[styles.tagButton, {backgroundColor: tag_attributes[item][1]}]}> 
+            <Icon name={tag_attributes[item][0]} size={15} color="white" />
+            <Text style={styles.tagText}>{tagNames[item]} </Text>
+          </TouchableOpacity>
+        </View>
+      ))
 
 
     return (<View style={{flexDirection: "row"}}> 
@@ -196,36 +182,37 @@ const App = () => {
 
   }
 
+
   const age_rating = (age) => {
 
     if (age === "18") {
       return <Image
                 source={require('./assets/BBFC_18_rz.png')}
-                style={{ width: 30, height: 30 }}/>
+                style={styles.ageRatingImage}/>
 
     } else if (age === "15") {
       return <Image
           source={require('./assets/BBFC_15_rz.png')}
-          style={{ width: 30, height: 30 }}/>
+          style={styles.ageRatingImage}/>
 
     } else if (age === "12A") {
       return <Image
           source={require('./assets/BBFC_12A_rz.png')}
-          style={{ width: 30, height: 30 }}/>
+          style={styles.ageRatingImage}/>
 
     } else if (age === "PG") {
       return <Image
           source={require('./assets/BBFC_PG_rz.png')}
-          style={{ width: 35, height: 30 }}/>
+          style={styles.ageRatingImageUPG}/>
 
     } else if (age === "U") {
       return <Image
           source={require('./assets/BBFC_U_rz.png')}
-          style={{ width: 35, height: 30 }}/>
+          style={styles.ageRatingImageUPG}/>
 
     } else if (age) {
       if (age.length <= 3){
-        return <Text style={{fontWeight: 'bold', marginBottom: 2, color: "white", fontSize: 20}}>{age}</Text>
+        return <Text style={styles.ageRatingText}>{age}</Text>
       }
     }
 
@@ -256,7 +243,7 @@ const App = () => {
 
   return (
     
-      <View style={{ flex: 1, flexDirection: "row", justifyContent: 'center', alignItems: 'center',  backgroundColor: "#fec84d"}}>
+      <View style={styles.mainPageBackground}>
         
         {data ? (
 
@@ -264,20 +251,23 @@ const App = () => {
 
 
             <LinearGradient
-                  colors={['#e42256', '#ff8370']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 0.75, y: 1 }}
-                  style={{ flexDirection: "row", alignItems: 'center', justifyContent: 'space-between', padding: 3}}
+                  colors={styles.topBar.colors}
+                  start={styles.topBar.start}
+                  end={styles.topBar.end}
+                  style={styles.topBar.style}
                 >
 
-                  <Text style={{marginLeft: 4, color: "white", fontWeight: "bold", borderBottomWidth: 1, borderColor: "black"}}>{"Pontardawe \nArts Centre"}</Text>
-                  <View style={{flexDirection: "row"}}>
-                    <TouchableOpacity style={{backgroundColor: "grey", marginRight: 5, borderRadius: 8}}>
-                      <Icon name="search" size={25} color="white" style={{padding: 4}} />
+                  <Text style={styles.title}>{"Pontardawe \nArts Centre"}</Text>
+                  <View style={styles.topBarButtons}>
+
+                    <TouchableOpacity style={styles.topBarButton}>
+                      <Icon name="search" size={styles.topBarButtonIcon.size} color={styles.topBarButtonIcon.color} style={styles.topBarButtonIcon.style} />
                     </TouchableOpacity>
-                    <TouchableOpacity style={{backgroundColor: "grey", marginRight: 5, borderRadius: 8}}>
-                      <Icon name="calendar" size={25} color="white" style={{padding: 4}} />
+
+                    <TouchableOpacity style={styles.topBarButton}>
+                      <Icon name="calendar" size={styles.topBarButtonIcon.size} color={styles.topBarButtonIcon.color} style={styles.topBarButtonIcon.style} />
                     </TouchableOpacity>
+
                   </View>
 
             </LinearGradient> 
@@ -286,59 +276,54 @@ const App = () => {
 
             <ScrollView 
                       // onScroll={scrolling} scrollEventThrottle={1} 
-                      style={{ backgroundColor: "#fec84d" }}>
-                <View style={{ flex: 1, flexDirection: "vertical", justifyContent: 'start', alignItems: 'start', marginTop: 5, backgroundColor: "#fec84d" }}>
+                      style={styles.eventsBackground}>
 
-                  {data.map(item => (
+              <View style={styles.eventsList}>
 
-                    <TouchableOpacity style={{
-                      flex: 1, width: "100%", alignItems: 'start', marginBottom: 30, padding: 10, backgroundColor: "#00b1b0", shadowColor: '#000',
-                      shadowOffset: { width: 0, height: 2 },
-                      shadowOpacity: 0.25,
-                      shadowRadius: 3.84,
-                      elevation: 5
-                    }} key={item.id} onPress={() => toggleItem(item.id)}>
+                {data.map(item => (
 
-                      <View style={{ flexDirection: "row" }}>
+                  <TouchableOpacity style={styles.eventItemSurround} key={item.id} onPress={() => toggleItem(item.id)}>
+
+                    <View style={styles.eventBlock}>
 
 
-                        <Image
-                          source={{ uri: item.image_thumb }}
-                          style={{ width: 100, height: 100 }} />
+                      <Image
+                        source={{ uri: item.image_thumb }}
+                        style={styles.eventImageThumb} />
 
 
-                        <View style={{ flexDirection: "column", width: "75%", marginLeft: 5 }}>
-                          <Text style={{ fontWeight: 'bold', marginBottom: 2, color: "white", fontSize: 20 }}>{item.id}</Text>
-                          <Text style={{ fontWeight: 'bold', marginTop: 2, color: "white", marginBottom: 10 }}>{renderDate(item.time_start, item.time_end)}</Text>
-                          <View style={{ flexDirection: "row" }}>
-                            {tag_render(item.tags, item.id)}
-                            {age_rating(item.age)}
-                          </View>
+                      <View style={styles.eventInfoBlock}>
+                        <Text style={styles.eventName}>{item.id}</Text>
+                        <Text style={styles.eventDate}>{renderDate(item.time_start, item.time_end)}</Text>
+                        <View style={styles.eventTagsBox}>
+                          {tag_render(item.tags, item.id)}
+                          {age_rating(item.age)}
                         </View>
-
                       </View>
 
-                      {expandedItem === item.id && (
-                        <View>
-                          <Text style={{ color: "white", marginTop: 3 }}>{item.desc.split(" ").slice(0, 20).join(' ').concat("...")}</Text>
+                    </View>
 
-                        </View>
-                      )}
+                    {expandedItem === item.id && (
+                      <View>
+                        <Text style={styles.eventDesc}>{item.desc.split(" ").slice(0, 20).join(' ').concat("...")}</Text>
+                        <Text style={styles.moreInfoButton}>[More Info]</Text>
+                      </View>
+                    )}
 
-                    </TouchableOpacity>
-                  
-                  ))}
+                  </TouchableOpacity>
+                
+                ))}
 
-                </View>
+              </View>
             </ScrollView>
             
             <LinearGradient
-                  colors={['#ff8370', '#ff8370']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 0.75, y: 1 }}
-                  style={{ flexDirection: "row", alignItems: 'center', justifyContent: 'space-between', padding: 3}}
+                  colors={styles.bottomBarActual.colors}
+                  start={styles.bottomBarActual.start}
+                  end={styles.bottomBarActual.end}
+                  style={styles.bottomBarActual.style}
                 >
-              <ScrollView horizontal={true} style={{padding: 5, height: 40}}>
+              <ScrollView horizontal={true} style={styles.bottomBarScroll}>
                           {tag_render(["cinema", "filmclub", "music", "panto", "comedy", "poetry", "entertainment", "family", "drama"], "bar", 100)}
               </ScrollView>
             </LinearGradient>
@@ -346,7 +331,9 @@ const App = () => {
           </View>
 
           ) : (
-            <Text style={{flex: 1, textAlign: 'center', backgroundColor: "#e42256", color: "white", fontSize: 30, padding: 5}}>{"Pontardawe \n Arts \n Centre"}</Text>
+
+            // The splash screen
+            <Text style={styles.splashScreen}>{"Pontardawe \n Arts \n Centre"}</Text>
           )}
 
       </View>
