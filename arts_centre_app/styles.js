@@ -139,7 +139,7 @@ export const styles = StyleSheet.create({
 
     // The outer most part of the event items
     eventItemSurround: {
-        colors: ['blue', '#20b2aa'],
+        colors: ['blue', '#20b2aa'],//sets the colour of the event box 
         start: { x: 0, y: 0 },
         end: { x: 1, y: 0 },
 
