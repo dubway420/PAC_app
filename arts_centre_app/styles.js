@@ -139,32 +139,25 @@ export const styles = StyleSheet.create({
 
     // The outer most part of the event items
     eventItemSurround: {
-        colors: ['#367588', '#20b2aa'],
+        colors: ['red', '#20b2aa'],
         start: { x: 0, y: 0 },
         end: { x: 1, y: 0 },
-        style: { 
-            flexDirection: "row", 
-            alignItems: 'center', 
-            justifyContent: 'space-between', 
-            padding: 3
-        }
 
-    },
-    style: {
-        flex: 1, 
-        width: "100%", 
-        alignItems: 'start', 
-        marginBottom: 30, 
-        padding: 10, 
-        backgroundColor: "#00b1b0",
-        
-        // HRJ: I've tried to add some styling to each item, not sure how well it works on android/iOS  
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5
-      },
+        style: {
+            flex: 1, 
+            width: "100%", 
+            alignItems: 'start', 
+            marginBottom: 30, 
+            padding: 10, 
+            backgroundColor: "#00b1b0",
+            
+            // HRJ: I've tried to add some styling to each item, not sure how well it works on android/iOS  
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+            elevation: 5
+        }},
 
     // just a block around eveything
     eventBlock: { 
