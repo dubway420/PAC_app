@@ -214,7 +214,7 @@ export const styles = StyleSheet.create({
     // The bottom bar -----------------------------------------------------
     
     bottomBarActual: {
-        colors: ['#ff8370', '#ff8370'],        
+        colors: ['#ff8370', '#ff8370'],//sets colour of bottom bar        
         start: { x: 0, y: 0 },
         end: { x: 0.75, y: 1 },
         style: {flexDirection: "row", alignItems: 'center', justifyContent: 'space-between', padding: 3}
