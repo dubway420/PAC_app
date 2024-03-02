@@ -64,7 +64,7 @@ export const styles = StyleSheet.create({
         flexDirection: "row", 
         justifyContent: 'center', 
         alignItems: 'center',  
-        backgroundColor: "#fec84d"
+        backgroundColor: "#A1615F" //This sets the colour of the background spalsh screen and the top Bar
     },
 
     // Gap for the status bar
@@ -121,7 +121,7 @@ export const styles = StyleSheet.create({
 
     // The main background (scrollview)
     eventsBackground: { 
-        backgroundColor: "#fec84d" 
+        backgroundColor: "#fec84d", 
     },
 
     // the box inside the scrollview that contains the actual event listings
@@ -131,7 +131,7 @@ export const styles = StyleSheet.create({
         justifyContent: 'start', 
         alignItems: 'start', 
         marginTop: 5, 
-        backgroundColor: "#fec84d" 
+        backgroundColor: "#A1615F" //sets the divider colour
     },
 
 
@@ -139,7 +139,7 @@ export const styles = StyleSheet.create({
 
     // The outer most part of the event items
     eventItemSurround: {
-        colors: ['red', '#20b2aa'],
+        colors: ['blue', '#20b2aa'],
         start: { x: 0, y: 0 },
         end: { x: 1, y: 0 },
 
@@ -149,7 +149,7 @@ export const styles = StyleSheet.create({
             alignItems: 'start', 
             marginBottom: 30, 
             padding: 10, 
-            backgroundColor: "#00b1b0",
+           
             
             // HRJ: I've tried to add some styling to each item, not sure how well it works on android/iOS  
             shadowColor: '#000',
