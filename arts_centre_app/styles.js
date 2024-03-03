@@ -32,7 +32,13 @@ export const styles = StyleSheet.create({
     // This is the text of the tags
     tagText: {
         color: "white", 
-        marginLeft: 5
+        marginLeft: 5,
+        // padding:5
+    },
+
+    tagSelected: {
+        borderWidth: 2, 
+        borderColor: 'white'
     },
 
 
@@ -212,12 +218,13 @@ export const styles = StyleSheet.create({
         colors: ['#ff8370', '#ff8370'],        
         start: { x: 0, y: 0 },
         end: { x: 0.75, y: 1 },
+        tagHeight: 40,
         style: {flexDirection: "row", alignItems: 'center', justifyContent: 'space-between', padding: 3}
     },
 
     bottomBarScroll: {
         padding: 5, 
-        height: 40
+        // height: 40
     },
 
 

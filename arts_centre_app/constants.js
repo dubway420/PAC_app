@@ -5,6 +5,7 @@
 
 export const tag_attributes = {
 //                              tag name        icon    colour
+                                all:           ["home", "black"],
                                 cinema:        ["play", "red"],
                                 filmclub:      ["film", "blue"],
                                 music:         ["music", "green"],

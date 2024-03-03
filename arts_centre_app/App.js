@@ -7,6 +7,7 @@ import { english, welsh } from './lang';
 import {LinearGradient} from 'expo-linear-gradient';
 import { tag_attributes } from './constants';
 import { styles } from './styles';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 // DONE
 // Get just a couple of lines of description
@@ -25,10 +26,11 @@ import { styles } from './styles';
 // Move styles to seperate page
 // Status bar
 // Title bar
+// Tapping a tag - filter by tag
 
 // TODO
 
-// Tapping a tag - filter by tag
+// 
 // On press:
 // 1. Small Desc 
 // 2. Lists each sub-event
@@ -62,20 +64,23 @@ import { styles } from './styles';
 
 
 const App = () => {
+
   const [data, setData] = useState(null);
   const [expandedItem, setExpandedItem] = useState(null);
   const [lang, setLang] = useState(english)
 
   const [scrollDirection, setScrollDirection] = useState('up');
   const [lastScrollPosition, setLastScrollPosition] = useState(0);
-  const [refresh, setRefresh] = useState(1)
 
   const [filterTag, setFilterTag] = useState(null)
   const monthNames = lang["months"]
   const tagNames = lang["tags"]
-
+  const [loading, setLoading] = useState(false)
 
   const fetchData = async () => {
+
+    setLoading(true)
+
     const db = getFirestore(app);
     const querySnapshot = await getDocs(collection(db, "events"));
     const fetchedData = querySnapshot.docs.map(doc => ({ id: doc.id,
@@ -97,6 +102,7 @@ const App = () => {
     }
 
     setData(filteredData);
+    setLoading(false)
   };
 
   useEffect(() => {
@@ -147,33 +153,41 @@ const App = () => {
 
   };
 
+
   filter_events = (filter_name, type="tag") => {
 
+    
     if (type == "tag") {
+      if (filter_name === "all") {
+
+        setFilterTag(null)
+        return
+      }
 
       setFilterTag(filter_name)
-      // fetchData()
 
     }
 
   }
 
 
-  const tag_render = (tags, id, h=35) => {
+  const tag_render = (tags, id, h=32, bottomBar=false) => {
 
     const validTags = tags.filter(tag => tag_attributes[tag]);
-    const tag_list = validTags.map(item => 
-      
-                                      
-      (
-        <View style={{height: h}} key={item.concat(id)}> 
+    const tag_list = validTags.map(item => {
 
-          <TouchableOpacity onPress={() => filter_events(item)} style={[styles.tagButton, {backgroundColor: tag_attributes[item][1]}]}> 
-            <Icon name={tag_attributes[item][0]} size={15} color="white" />
-            <Text style={styles.tagText}>{tagNames[item]} </Text>
+      const additionalStyles = (item === filterTag && bottomBar) ? styles.tagSelected : {};    
+
+      return (
+        
+        <View key={item.concat(id)}> 
+
+          <TouchableOpacity onPress={() => filter_events(item)} style={[styles.tagButton, {backgroundColor: tag_attributes[item][1], height: h}, additionalStyles]}> 
+            <Icon name={tag_attributes[item][0]} size={h/1.75} color="white" />
+            <Text style={[styles.tagText, {fontSize: h/1.75}]}>{tagNames[item]} </Text>
           </TouchableOpacity>
-        </View>
-      ))
+        </View>)
+  })
 
 
     return (<View style={{flexDirection: "row"}}> 
@@ -218,6 +232,7 @@ const App = () => {
 
   }
 
+
   const scrolling = (event) => {
 
     const currentScrollPosition = event.nativeEvent.contentOffset.y;
@@ -244,6 +259,11 @@ const App = () => {
   return (
     
       <View style={styles.mainPageBackground}>
+        <Spinner
+              visible={loading}
+              textContent={'Loading...'}
+              textStyle={styles.spinnerTextStyle}
+            />
         
         {data ? (
 
@@ -274,7 +294,7 @@ const App = () => {
 
 
 
-            <ScrollView 
+              <ScrollView 
                       // onScroll={scrolling} scrollEventThrottle={1} 
                       style={styles.eventsBackground}>
 
@@ -315,16 +335,18 @@ const App = () => {
                 ))}
 
               </View>
-            </ScrollView>
             
+            </ScrollView>
+
             <LinearGradient
                   colors={styles.bottomBarActual.colors}
                   start={styles.bottomBarActual.start}
                   end={styles.bottomBarActual.end}
                   style={styles.bottomBarActual.style}
                 >
-              <ScrollView horizontal={true} style={styles.bottomBarScroll}>
-                          {tag_render(["cinema", "filmclub", "music", "panto", "comedy", "poetry", "entertainment", "family", "drama"], "bar", 100)}
+
+              <ScrollView horizontal={true} style={[styles.bottomBarScroll]}>
+                          {tag_render(Object.keys(tag_attributes), "bar", styles.bottomBarActual.tagHeight, true)}
               </ScrollView>
             </LinearGradient>
 
@@ -333,7 +355,12 @@ const App = () => {
           ) : (
 
             // The splash screen
-            <Text style={styles.splashScreen}>{"Pontardawe \n Arts \n Centre"}</Text>
+
+              
+              <Text style={styles.splashScreen}>{"Pontardawe \n Arts \n Centre"}</Text>
+
+
+
           )}
 
       </View>
