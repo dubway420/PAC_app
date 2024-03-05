@@ -78,32 +78,40 @@ const App = () => {
   const [loading, setLoading] = useState(false)
 
   const fetchData = async () => {
-
-    setLoading(true)
+    setLoading(true);
 
     const db = getFirestore(app);
     const querySnapshot = await getDocs(collection(db, "events"));
-    const fetchedData = querySnapshot.docs.map(doc => ({ id: doc.id,
-                                                         desc: doc.data().description, 
-                                                         company: doc.data().company, 
-                                                         time_start: doc.data().time_earliest,
-                                                         time_end: doc.data().time_latest,
-                                                         image_thumb: doc.data().images[0],
-                                                         tags: doc.data().tags,
-                                                         age: doc.data().Age_Rating
-                                                        }));
+
+    const fetchedData = await Promise.all(querySnapshot.docs.map(async doc => {
+        const subEventsSnapshot = await getDocs(collection(db, "events", doc.id, "sub_events"));
+        const subEvents = subEventsSnapshot.docs.map(subDoc => subDoc.data());
+
+        return {
+            id: doc.id,
+            desc: doc.data().description,
+            company: doc.data().company,
+            time_start: doc.data().time_earliest,
+            time_end: doc.data().time_latest,
+            image_thumb: doc.data().images[0],
+            tags: doc.data().tags,
+            age: doc.data().Age_Rating,
+            sub_events: subEvents
+        };
+
+    }));
+
+    let filteredData;
 
     if (filterTag) {
-       filteredData = fetchedData.filter(item => item.tags.includes(filterTag));
-    }
-    else {
-      
-       filteredData = fetchedData
+        filteredData = fetchedData.filter(item => item.tags.includes(filterTag));
+    } else {
+        filteredData = fetchedData;
     }
 
     setData(filteredData);
-    setLoading(false)
-  };
+    setLoading(false);
+};
 
   useEffect(() => {
 
@@ -256,18 +264,38 @@ const App = () => {
 
   }
 
+
+  const sub_events_parser = (sub_events) => {
+
+    // Get date objects for each sub_event 
+    const start_dates = sub_events.map(event => new Date(event.start_time.seconds * 1000))
+    const day_month = start_dates.map(date => [date.getDay(), date.getMonth()])
+
+    console.log(day_month)
+    
+
+    // for (let i = 0; i < sub_events.length; i++) {
+
+    //   const date = new Date(sub_events[i].start_time.seconds * 1000);
+      
+
+    // }
+
+  }
+
   return (
     
       <View style={styles.mainPageBackground}>
-        <Spinner
-              visible={loading}
-              textContent={'Loading...'}
-              textStyle={styles.spinnerTextStyle}
-            />
         
         {data ? (
 
           <View style={{paddingTop: 25}}>
+
+            <Spinner
+              visible={loading}
+              // textContent={'Loading...'}
+              textStyle={styles.spinnerTextStyle}
+            />
 
 
             <LinearGradient
@@ -327,6 +355,12 @@ const App = () => {
                       <View>
                         <Text style={styles.eventDesc}>{item.desc.split(" ").slice(0, 20).join(' ').concat("...")}</Text>
                         <Text style={styles.moreInfoButton}>[More Info]</Text>
+                        {sub_events_parser(item.sub_events)}
+
+                        
+
+                        {/* {console.log(item.sub_events)} */}
+
                       </View>
                     )}
 
